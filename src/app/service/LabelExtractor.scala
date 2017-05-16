@@ -1,16 +1,12 @@
 package service
 
-package model.rdf.extractor
-
 import org.apache.jena.query.{QueryExecution, QuerySolution}
-import org.apache.jena.rdf.model.Literal
-
 import scala.collection.JavaConversions._
 
 
 class LabelExtractor {
 
-    case class RdfLabelResult(
+    case class LabelResult(
         rdfsLabel: Option[StringLiteral],
         skosPrefLabel: Option[StringLiteral],
         skosNotation: Option[StringLiteral],
@@ -20,7 +16,7 @@ class LabelExtractor {
         legalName: Option[StringLiteral]
     )
 
-    val selectors: Seq[(RdfLabelResult => Option[StringLiteral])] = Seq(
+    val selectors: Seq[(LabelResult => Option[StringLiteral])] = Seq(
         r => r.rdfsLabel,
         r => r.skosPrefLabel,
         r => r.schemaName,
@@ -30,11 +26,11 @@ class LabelExtractor {
         r => r.legalName
     )
 
-    override def extract(data: QueryExecution): Option[LocalizedValue] = {
+    def extract(data: QueryExecution): Option[LocalizedValue] = {
         val result = data.execSelect().asInstanceOf[java.util.Iterator[QuerySolution]]
 
         val labelResults = result.toList.map { qs =>
-            RdfLabelResult(
+            LabelResult(
                 rdfsLabel = Option(qs.get("l")).map(_.asLiteral()).map(StringLiteral.create),
                 skosPrefLabel = Option(qs.get("spl")).map(_.asLiteral()).map(StringLiteral.create),
                 skosNotation = Option(qs.get("sn")).map(_.asLiteral()).map(StringLiteral.create),
@@ -61,7 +57,7 @@ class LabelExtractor {
 
     }
 
-    private def findLabel(language: String, available: Seq[RdfLabelResult]): Option[StringLiteral] = {
+    private def findLabel(language: Option[String], available: Seq[LabelResult]): Option[StringLiteral] = {
         selectors.flatMap(s => available.flatMap(r => s(r)).find(_.language == language)).headOption
     }
 }

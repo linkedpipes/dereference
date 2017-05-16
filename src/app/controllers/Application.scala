@@ -6,7 +6,7 @@ import play.api.mvc._
 import service.DereferenceService
 
 @Singleton
-class DiscoveryController @Inject()(service: DereferenceService) extends Controller {
+class Application @Inject()(service: DereferenceService) extends Controller {
 
     def dereference(uri: String) = Action {
         Ok(Json.toJson(service.dereferenceLabels(uri)))

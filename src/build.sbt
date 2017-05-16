@@ -14,9 +14,13 @@ libraryDependencies ++= Seq(
     jdbc,
     cache,
     ws,
-    specs2 % Test
+    specs2 % Test,
+    "org.apache.jena" % "apache-jena" % "3.2.0",
+    "org.scalaj" %% "scalaj-http" % "2.3.0"
 )
 
 unmanagedResourceDirectories in Test <+=  baseDirectory ( _ /"target/web/public/test" )
 
 fork in run := false
+
+routesGenerator := InjectedRoutesGenerator
